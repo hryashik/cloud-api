@@ -1,7 +1,7 @@
 import express from "express";
 import { config } from "dotenv";
 import bodyParser from "body-parser";
-import { authRouter } from "./routers/router";
+import authRouter from "./routers/router";
 
 config();
 
