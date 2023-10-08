@@ -3,6 +3,7 @@ import { config } from "dotenv";
 import bodyParser from "body-parser";
 import authRouter from "./routers/router";
 import mongoose from "mongoose";
+import { errorHandler } from "./middlewares/errorHandler";
 
 config();
 
@@ -11,6 +12,7 @@ const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 app.use("/auth", authRouter);
+app.use(errorHandler)
 
 async function start() {
    try {

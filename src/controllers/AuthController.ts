@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { signupDto } from "../types/signup.dto";
 import { AuthService } from "../services/AuthService";
 import { CustomError } from "../errors/customError";
@@ -13,20 +13,14 @@ export default class AuthController {
       this.authService = authService;
       this.signup = this.signup.bind(this);
    }
-   async signup(req: ISignupReq, res: Response) {
+   async signup(req: ISignupReq, res: Response, next: NextFunction) {
       try {
          const dto = req.body;
          const value = await this.authService.createUser(dto);
          res.send(value);
       } catch (error) {
-         if (error instanceof CustomError) {
-            res.status(error.status).json({
-               error: error.message,
-               name: error.name,
-            });
-         } else {
-            res.status(500).json({ message: "Something error" });
-         }
+         next(error);
       }
    }
+   
 }

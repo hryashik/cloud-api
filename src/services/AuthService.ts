@@ -30,7 +30,7 @@ export class AuthService implements IAuthService {
          ) {
             throw new CustomError("Credentials is taken", 409);
          } else {
-            console.log("Something wrong");
+            throw new Error();
          }
       }
    }
