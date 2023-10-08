@@ -10,7 +10,6 @@ const schema = joi.object<signupDto>({
       .email({ minDomainSegments: 2 })
       .required(),
    password: joi.string().min(6).max(20).required(),
-   username: joi.string().min(4).max(15).alphanum().required(),
 });
 
 async function authSignupValidate(
