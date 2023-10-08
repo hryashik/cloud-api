@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { signupDto } from "../types/signup.dto";
 import { AuthService } from "../services/AuthService";
+import { CustomError } from "../errors/customError";
 
 interface ISignupReq extends Request {
    body: signupDto;
@@ -18,8 +19,11 @@ export default class AuthController {
          const value = await this.authService.createUser(dto);
          res.send(value);
       } catch (error) {
-         if (error instanceof Error) {
-            res.status(409).json({});
+         if (error instanceof CustomError) {
+            res.status(error.status).json({
+               error: error.message,
+               name: error.name,
+            });
          } else {
             res.status(500).json({ message: "Something error" });
          }
