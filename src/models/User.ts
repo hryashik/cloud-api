@@ -11,7 +11,7 @@ export type UserType = {
 
 const User = new Schema({
    email: { type: String, required: true, unique: true },
-   username: { type: String, unique: true },
+   username: { type: String, unique: true, default: null },
    password: { type: String, required: true },
    diskSpace: { type: Number, default: 1024 ** 2 * 50 },
    usedSpace: { type: Number, default: 0 },

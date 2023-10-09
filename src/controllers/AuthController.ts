@@ -16,11 +16,10 @@ export default class AuthController {
    async signup(req: ISignupReq, res: Response, next: NextFunction) {
       try {
          const dto = req.body;
-         const value = await this.authService.createUser(dto);
-         res.send(value);
+         const data = await this.authService.createUser(dto);
+         res.json({ token: data });
       } catch (error) {
          next(error);
       }
    }
-   
 }
