@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { CustomError } from "../errors/customError";
+import { CustomHttpError } from "../errors/customHttpError";
 
 export function errorHandler(
    err: Error,
@@ -7,7 +7,7 @@ export function errorHandler(
    res: Response,
    next: NextFunction
 ) {
-   if (err instanceof CustomError) {
+   if (err instanceof CustomHttpError) {
       res.status(err.status)
          .json({ error: err.message})
          .end();

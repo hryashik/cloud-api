@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { SignupDto } from "../types/signup.dto";
 import { AuthService } from "../services/AuthService";
-import { CustomError } from "../errors/customError";
+import { CustomHttpError } from "../errors/customHttpError";
 
 interface ISignupReq extends Request {
    body: SignupDto;
