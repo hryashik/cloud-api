@@ -1,11 +1,21 @@
 import { NextFunction, Request, Response } from "express";
+import { CustomHttpError } from "../errors/customHttpError";
 
 class FilesController {
    constructor() {
-      this.getAllFiles.bind(this);
+      this.getFiles.bind(this);
    }
-   getAllFiles(req: Request, res: Response, next: NextFunction) {
-      res.send("OK")
+   getFiles(req: Request, res: Response, next: NextFunction) {
+      try {
+         const { path } = req.query;
+         if (!path) {
+            throw new CustomHttpError("Path is not available", 403);
+         }
+
+         res.send("OK");
+      } catch (error) {
+         next(error)
+      }
    }
 }
 

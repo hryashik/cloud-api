@@ -10,7 +10,8 @@ class UserRepository {
       }
       UserRepository.instance = this;
    }
-   async findOne(email: string): Promise<UserType | null> {
+   
+   async findOne(email: string) {
       try {
          const user = await User.findOne({ email }).lean();
          return user;
@@ -27,7 +28,7 @@ class UserRepository {
       email: string;
       password: string;
       username: string;
-   }): Promise<UserType> {
+   }) {
       try {
          const user = (await User.create({ email, username, hash: password })).toObject();
          return user;

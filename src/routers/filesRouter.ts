@@ -6,6 +6,6 @@ const filesRouter = Router();
 
 const filesController = new FilesController();
 
-filesRouter.get("/", jwtGuard, filesController.getAllFiles);
+filesRouter.get("/", jwtGuard, filesController.getFiles);
 
 export default filesRouter;
