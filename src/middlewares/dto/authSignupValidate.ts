@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import joi, { ValidationError } from "joi";
-import { signupDto } from "../types/signup.dto";
+import { SignupDto } from "../../types/signup.dto";
 
-const schema = joi.object<signupDto>({
+const schema = joi.object<SignupDto>({
    email: joi.string().min(5).max(30).email({ minDomainSegments: 2 }).required(),
    password: joi.string().min(6).max(20).required(),
    username: joi.string().min(4).max(20).required(),

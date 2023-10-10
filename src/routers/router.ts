@@ -1,14 +1,16 @@
 import { Router } from "express";
 import AuthController from "../controllers/AuthController";
-import authSignupValidate from "../middlewares/authSignup";
+import authSignupValidate from "../middlewares/dto/authSignupValidate";
 import AuthService from "../services/AuthService";
 import JWTService from "../services/jwtService";
+import authLoginValidate from "../middlewares/dto/authLoginValidate";
 
 const authService = new AuthService(new JWTService());
 const authController = new AuthController(authService);
 
 const authRouter = Router();
 
-authRouter.post("/", authSignupValidate, authController.signup);
+authRouter.post("/signup", authSignupValidate, authController.signup);
+authRouter.post("/login", authLoginValidate, authController.login)
 
 export default authRouter;

@@ -1,6 +1,8 @@
 import { UserType } from "../models/User";
-import { signupDto } from "../types/signup.dto";
+import { LoginDto } from "../types/login.dto";
+import { SignupDto } from "../types/signup.dto";
 
 export interface IAuthService {
-   createUser(dto: signupDto): Promise<string>;
+   createUser(dto: SignupDto): Promise<string>;
+   checkCkredetials(dto: LoginDto): Promise<string>;
 }
