@@ -6,17 +6,20 @@ export type UserType = {
    diskSpace: number;
    usedSpace: number;
    avatar: string;
-   files: any;
+   hash: string;
+   files: [];
 };
 
-const User = new Schema({
+const UserSchema = new Schema<UserType>({
    email: { type: String, required: true, unique: true },
    username: { type: String, unique: true, default: null },
-   password: { type: String, required: true },
+   hash: { type: String, required: true },
    diskSpace: { type: Number, default: 1024 ** 2 * 50 },
    usedSpace: { type: Number, default: 0 },
    avatar: { type: String, default: "" },
    files: [{ type: Schema.Types.ObjectId, ref: "File" }],
 });
 
-export default model("User", User);
+const User = model("User", UserSchema);
+
+export default User;

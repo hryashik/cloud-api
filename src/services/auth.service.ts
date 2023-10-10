@@ -3,7 +3,7 @@ import { IAuthService } from "../interfaces/AuthServiceInterface";
 import bcrypt from "bcrypt";
 
 import { CustomHttpError } from "../errors/customHttpError";
-import JWTService from "./jwtService";
+import JWTService from "./jwt.service";
 import { LoginDto } from "../types/login.dto";
 import UserRepository from "../repositories/user.repository";
 import { CustomRepositoryError } from "../errors/customRepositoryError";
@@ -41,7 +41,7 @@ export class AuthService implements IAuthService {
          }
 
          // check hash
-         const verifyPwd = await bcrypt.compare(dto.password, user.password);
+         const verifyPwd = await bcrypt.compare(dto.password, user.hash);
          if (!verifyPwd) {
             throw new CustomHttpError("User not found", 403);
          }

@@ -1,25 +1,38 @@
 import mongoose from "mongoose";
 import { CustomRepositoryError } from "../errors/customRepositoryError";
-import User from "../models/User";
+import User, { UserType } from "../models/User";
 
 class UserRepository {
-   async findOne(email: string) {
+   private static instance: UserRepository | null;
+   constructor() {
+      if (UserRepository.instance) {
+         return UserRepository.instance;
+      }
+      UserRepository.instance = this;
+   }
+   async findOne(email: string): Promise<UserType | null> {
       try {
-         const user = User.findOne({ email });
+         const user = await User.findOne({ email }).lean();
          return user;
       } catch (error) {
          throw new CustomRepositoryError("Some error with DB");
       }
    }
 
-   async create(data: { email: string; password: string; username: string }) {
+   async create({
+      email,
+      username,
+      password,
+   }: {
+      email: string;
+      password: string;
+      username: string;
+   }): Promise<UserType> {
       try {
-         const user = await User.create(data);
+         const user = (await User.create({ email, username, hash: password })).toObject();
          return user;
       } catch (error) {
-         if (error instanceof mongoose.mongo.MongoServerError && error.code === 11000) {
-            throw new CustomRepositoryError("Some error with DB");
-         }
+         throw new CustomRepositoryError("Some error with DB");
       }
    }
 }
