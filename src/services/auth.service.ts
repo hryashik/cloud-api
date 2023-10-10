@@ -1,15 +1,15 @@
 import { SignupDto } from "../types/signup.dto";
 import { IAuthService } from "../interfaces/AuthServiceInterface";
 import bcrypt from "bcrypt";
-import User from "../models/User";
-import mongoose, { MongooseError } from "mongoose";
+
 import { CustomHttpError } from "../errors/customHttpError";
 import JWTService from "./jwtService";
 import { LoginDto } from "../types/login.dto";
 import UserRepository from "../repositories/user.repository";
+import { CustomRepositoryError } from "../errors/customRepositoryError";
 
 export class AuthService implements IAuthService {
-   constructor(private jwtService: JWTService, private userRep: UserRepository) {}
+   constructor(private jwtService: JWTService, private userRepository: UserRepository) {}
 
    async createUser(dto: SignupDto): Promise<string> {
       try {
@@ -19,14 +19,12 @@ export class AuthService implements IAuthService {
          dto.password = hashedPassword;
 
          //create user
-         const user = await User.create(dto);
-
+         const user = await this.userRepository.create(dto);
          //create token
          const token = this.jwtService.createToken(dto.email);
          return token;
       } catch (error) {
-         if (error instanceof mongoose.mongo.MongoServerError && error.code === 11000) {
-            console.error(error);
+         if (error instanceof CustomRepositoryError) {
             throw new CustomHttpError("Credentials is taken", 409);
          } else {
             throw new Error();
@@ -34,10 +32,10 @@ export class AuthService implements IAuthService {
       }
    }
 
-   async checkCkredetials(dto: LoginDto): Promise<string> {
+   async checkCredentials(dto: LoginDto): Promise<string> {
       try {
          // find user
-         const user = await this.userRep.findOne(dto.email);
+         const user = await this.userRepository.findOne(dto.email);
          if (!user) {
             throw new CustomHttpError("User not found", 403);
          }
@@ -55,7 +53,6 @@ export class AuthService implements IAuthService {
          if (error instanceof CustomHttpError) {
             throw new CustomHttpError("Incorrect credentials", 403);
          } else {
-            console.error(error);
             throw new Error("Something went wrong");
          }
       }

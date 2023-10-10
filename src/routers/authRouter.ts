@@ -1,7 +1,7 @@
 import { Router } from "express";
-import AuthController from "../controllers/AuthController";
+import AuthController from "../controllers/auth.controller";
 import authSignupValidate from "../middlewares/dto/authSignupValidate";
-import AuthService from "../services/AuthService";
+import AuthService from "../services/auth.service";
 import JWTService from "../services/jwtService";
 import authLoginValidate from "../middlewares/dto/authLoginValidate";
 import UserRepository from "../repositories/user.repository";

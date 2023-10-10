@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { SignupDto } from "../types/signup.dto";
-import { AuthService } from "../services/AuthService";
+import { AuthService } from "../services/auth.service";
 import { CustomHttpError } from "../errors/customHttpError";
 
 interface ISignupReq extends Request {
@@ -34,7 +34,7 @@ export default class AuthController {
    async login(req: ILoginReq, res: Response, next: NextFunction) {
       try {
          const dto = req.body;
-         const token = await this.authService.checkCkredetials(dto);
+         const token = await this.authService.checkCredentials(dto);
          res.send({ token });
       } catch (error) {
          next(error);

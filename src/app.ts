@@ -1,9 +1,10 @@
 import express from "express";
 import { config } from "dotenv";
 import bodyParser from "body-parser";
-import authRouter from "./routers/router";
+import authRouter from "./routers/authRouter";
 import mongoose from "mongoose";
 import { errorHandler } from "./middlewares/errorHandler";
+import filesRouter from "./routers/filesRouter";
 
 config();
 
@@ -12,7 +13,8 @@ const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 app.use("/auth", authRouter);
-app.use(errorHandler)
+app.use("/files", filesRouter);
+app.use(errorHandler);
 
 async function start() {
    try {
