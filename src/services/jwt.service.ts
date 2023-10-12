@@ -15,7 +15,7 @@ class JWTService {
    createToken(email: string) {
       try {
          const key = process.env.JWT_KEY!!;
-         const token = jwt.sign({ email }, key, { expiresIn: "1h" });
+         const token = jwt.sign({ email }, key, { expiresIn: "1d" });
          return token;
       } catch (error) {
          console.error(error);

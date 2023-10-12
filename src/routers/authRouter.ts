@@ -5,6 +5,7 @@ import JWTService from "../services/jwt.service";
 import authSignupValidate from "../middlewares/validations/authSignupValidate";
 import authLoginValidate from "../middlewares/validations/authLoginValidate";
 import UserRepository from "../repositories/user.repository";
+import { PrismaClient } from "@prisma/client";
 
 // SERVICES
 const jwtService = new JWTService();
