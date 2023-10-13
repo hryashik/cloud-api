@@ -1,10 +1,9 @@
-import mongoose from "mongoose";
 import { CustomRepositoryError } from "../errors/customRepositoryError";
-import { UserType } from "../models/User";
+import { UserRepositoryInterface } from "../interfaces/repositoryInterface";
 import { PrismaService } from "../prisma/prisma.service";
 import { User } from "@prisma/client";
 
-class UserRepository {
+class UserRepository implements UserRepositoryInterface {
    private static instance: UserRepository | null;
    private prisma = new PrismaService();
    constructor() {
@@ -35,7 +34,7 @@ class UserRepository {
       email: string;
       password: string;
       username: string;
-   }): Promise<User> {
+   }) {
       try {
          const user = await this.prisma.user.create({
             data: {
@@ -44,10 +43,9 @@ class UserRepository {
                hash: password,
             },
          });
-
          return user;
       } catch (error) {
-         console.log(error)
+         console.log(error);
          throw new CustomRepositoryError("Some error with DB");
       }
    }

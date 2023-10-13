@@ -3,7 +3,6 @@ import FilesController from "../controllers/files.controller";
 import jwtGuard from "../middlewares/guards/jwt.guard";
 import multer from "multer";
 import FilesService from "../services/files.service";
-import { UserType } from "../models/User";
 
 const upload = multer({
    dest: "uploads",

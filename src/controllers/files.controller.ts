@@ -1,8 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { CustomHttpError } from "../errors/customHttpError";
 import FilesService from "../services/files.service";
-import { UserType } from "../models/User";
-import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 
 interface IRequest extends Request {
