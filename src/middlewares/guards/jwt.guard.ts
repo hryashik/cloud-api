@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import JWTService from "../../services/jwt.service";
-import UserSchema, { UserType } from "../../models/User";
 
 const jwtService = new JWTService();
 

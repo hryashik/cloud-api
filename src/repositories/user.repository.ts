@@ -1,11 +1,13 @@
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { CustomRepositoryError } from "../errors/customRepositoryError";
 import { UserRepositoryInterface } from "../interfaces/repositoryInterface";
 import { PrismaService } from "../prisma/prisma.service";
-import { User } from "@prisma/client";
+import { CustomHttpError } from "../errors/customHttpError";
 
 class UserRepository implements UserRepositoryInterface {
    private static instance: UserRepository | null;
    private prisma = new PrismaService();
+
    constructor() {
       if (UserRepository.instance) {
          return UserRepository.instance;
@@ -22,7 +24,8 @@ class UserRepository implements UserRepositoryInterface {
          });
          return user;
       } catch (error) {
-         throw new CustomRepositoryError("Some error with DB");
+         console.error(error);
+         throw new CustomRepositoryError("Some error with DB", 500);
       }
    }
 
@@ -45,8 +48,13 @@ class UserRepository implements UserRepositoryInterface {
          });
          return user;
       } catch (error) {
-         console.log(error);
-         throw new CustomRepositoryError("Some error with DB");
+         // credentials is taken
+         if (error instanceof PrismaClientKnownRequestError && error.code === "P2002") {
+            throw new CustomRepositoryError("Credentials is taken", 409);
+         } else {
+            console.error(error);
+            throw new CustomRepositoryError("@AUTH-REPOSITORY ERROR", 500);
+         }
       }
    }
 }

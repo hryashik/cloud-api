@@ -1,10 +1,7 @@
-import { IFilesService } from "../interfaces/FilesServiceInterface";
-import { FileType } from "../models/File";
-
-class FilesService implements IFilesService {
-   async saveFiles() {
+class FilesService {
+   constructor() {
       
    }
 }
 
-export default FilesService;
+export default FilesService

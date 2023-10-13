@@ -13,4 +13,5 @@ export abstract class UserRepositoryInterface implements Repository {
 export abstract class FileRepositoryInterface implements Repository {
    abstract findOne(unique: string): Promise<File | null>;
    abstract create(name: string, type: string, userId: string): Promise<File>;
+   abstract findMany(userId: string): Promise<File[]>
 }

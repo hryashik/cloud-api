@@ -2,11 +2,9 @@ import express from "express";
 import { config } from "dotenv";
 import bodyParser from "body-parser";
 import authRouter from "./routers/authRouter";
-import mongoose from "mongoose";
 import { errorHandler } from "./middlewares/errorHandler";
 import filesRouter from "./routers/filesRouter";
 import cors from "cors";
-import { Prisma, PrismaClient } from "@prisma/client";
 
 config();
 

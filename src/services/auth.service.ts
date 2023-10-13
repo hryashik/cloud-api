@@ -1,5 +1,4 @@
 import { SignupDto } from "../types/signup.dto";
-import { IAuthService } from "../interfaces/AuthServiceInterface";
 import bcrypt from "bcrypt";
 
 import { CustomHttpError } from "../errors/customHttpError";
@@ -7,11 +6,12 @@ import JWTService from "./jwt.service";
 import { LoginDto } from "../types/login.dto";
 import UserRepository from "../repositories/user.repository";
 import { CustomRepositoryError } from "../errors/customRepositoryError";
+import { AuthServiceInterface } from "../interfaces/servicesInterfaces";
 
-export class AuthService implements IAuthService {
+export class AuthService implements AuthServiceInterface {
    constructor(private jwtService: JWTService, private userRepository: UserRepository) {}
 
-   async createUser(dto: SignupDto): Promise<string> {
+   async createUser(dto: SignupDto) {
       try {
          //gen hash
          const salt = await bcrypt.genSalt(10);
@@ -25,7 +25,7 @@ export class AuthService implements IAuthService {
          return token;
       } catch (error) {
          if (error instanceof CustomRepositoryError) {
-            throw new CustomHttpError("Credentials is taken", 409);
+            throw new CustomHttpError(error.message, error.status);
          } else {
             throw new Error();
          }
