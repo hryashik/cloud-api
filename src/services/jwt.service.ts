@@ -1,8 +1,9 @@
 import jwt, { TokenExpiredError } from "jsonwebtoken";
 import UserRepository from "../repositories/user.repository";
 import { CustomHttpError } from "../errors/customHttpError";
+import { JWTServiceInterface } from "../interfaces/servicesInterfaces";
 
-class JWTService {
+class JWTService implements JWTServiceInterface{
    private static instance: JWTService | null;
    private userRepository = new UserRepository();
    constructor() {
@@ -33,6 +34,7 @@ class JWTService {
          if (error instanceof TokenExpiredError) {
             throw new CustomHttpError("Token is expired", 403);
          }
+         console.log(error)
          throw new Error("JWT VERIFY ERROR");
       }
    }

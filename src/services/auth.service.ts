@@ -4,12 +4,11 @@ import bcrypt from "bcrypt";
 import { CustomHttpError } from "../errors/customHttpError";
 import JWTService from "./jwt.service";
 import { LoginDto } from "../types/login.dto";
-import UserRepository from "../repositories/user.repository";
-import { CustomRepositoryError } from "../errors/customRepositoryError";
 import { AuthServiceInterface } from "../interfaces/servicesInterfaces";
+import { UserRepositoryInterface } from "../interfaces/repositoryInterface";
 
 export class AuthService implements AuthServiceInterface {
-   constructor(private jwtService: JWTService, private userRepository: UserRepository) {}
+   constructor(private jwtService: JWTService, private userRepository: UserRepositoryInterface) {}
 
    async createUser(dto: SignupDto) {
       //gen hash

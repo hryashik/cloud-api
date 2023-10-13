@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { SignupDto } from "../types/signup.dto";
-import { AuthService } from "../services/auth.service";
-import { CustomHttpError } from "../errors/customHttpError";
+import { AuthServiceInterface } from "../interfaces/servicesInterfaces";
 
 interface ISignupReq extends Request {
    body: SignupDto;
@@ -16,7 +15,7 @@ interface ILoginReq extends Request {
 export default class AuthController {
    private authService;
 
-   constructor(authService: AuthService) {
+   constructor(authService: AuthServiceInterface) {
       this.authService = authService;
       this.signup = this.signup.bind(this);
       this.login = this.login.bind(this);
