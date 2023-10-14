@@ -1,59 +1,54 @@
 import { NextFunction, Request, Response } from "express";
 import { CustomHttpError } from "../errors/customHttpError";
-import FilesService from "../services/files.service";
+import FileService from "../services/files.service";
 import { PrismaService } from "../prisma/prisma.service";
 
-interface IRequest extends Request {
-   files: Express.Multer.File[] | undefined;
+interface IReqCreateFile extends Request {
+   body: {
+      type: "dir" | "file";
+      name: string;
+   };
 }
 
 class FilesController {
-   constructor(private filesService: FilesService) {
-      this.getFiles.bind(this);
-      this.filesService;
+   constructor(private filesService: FileService) {
+      this.getFiles = this.getFiles.bind(this)
+      this.create = this.create.bind(this)
    }
 
    async getFiles(req: Request, res: Response, next: NextFunction) {
       try {
-         const { path } = req.query;
-         if (!path) {
-            throw new CustomHttpError("Path is not available", 403);
-         }
+         // JWT
+         const userId = req.user?.id
+         if (!userId) throw new CustomHttpError("Unauthorized", 401)
 
-         const prisma = new PrismaService();
-         const data = await prisma.user.findUnique({
-            where: {
-               id: req.user?.id!!,
-            },
-            include: {
-               files: {
-                  include: {
-                     user: {},
-                  },
-               },
-            },
-         });
-         console.log(data?.files[0].user);
-         res.send("OK");
+         const files = await this.filesService.getAllFiles(userId);
+         res.json(files).end()
       } catch (error) {
          next(error);
       }
    }
 
    async saveFiles(req: Request, res: Response, next: NextFunction) {
+      
+   }
+
+   async create(req: IReqCreateFile, res: Response, next: NextFunction) {
       try {
-         const files = req.files;
-         if (!files) {
-            res.status(200).end();
-            return;
+         // JWT
+         const userId = req.user?.id;
+         if (!userId) throw new CustomHttpError("Unauthorized", 401)
+
+         // QUERY PATH
+         const path = req.query.path as string | undefined;
+         const { name, type } = req.body;
+
+         if (type === "dir") {
+            const dir = await this.filesService.createDir({ name, path, userId });
+            res.json(dir).end();
+         } else {
+            res.send("OK")
          }
-         if (Array.isArray(files)) {
-            const prisma = new PrismaService();
-            await prisma.file.create({
-               data: { name: "first", type: "file", userId: req.user?.id!! },
-            });
-         }
-         res.send("OK");
       } catch (error) {
          next(error);
       }

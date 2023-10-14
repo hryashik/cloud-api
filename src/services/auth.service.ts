@@ -17,7 +17,7 @@ export class AuthService implements AuthServiceInterface {
       dto.password = hashedPassword;
 
       //create user
-      const user = await this.userRepository.create(dto);
+      const user = await this.userRepository.createFile(dto);
       //create token
       const token = this.jwtService.createToken(dto.email);
       return token;
@@ -27,13 +27,13 @@ export class AuthService implements AuthServiceInterface {
       // find user
       const user = await this.userRepository.findOne(dto.email);
       if (!user) {
-         throw new CustomHttpError("User not found", 401);
+         throw new CustomHttpError("Credentials is wrong", 401);
       }
 
       // check hash
       const verifyPwd = await bcrypt.compare(dto.password, user.hash);
       if (!verifyPwd) {
-         throw new CustomHttpError("User not found", 401);
+         throw new CustomHttpError("Credentials is wrong", 401);
       }
 
       // create token

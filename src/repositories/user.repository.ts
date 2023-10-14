@@ -29,7 +29,7 @@ class UserRepository implements UserRepositoryInterface {
       }
    }
 
-   async create({
+   async createFile({
       email,
       username,
       password,

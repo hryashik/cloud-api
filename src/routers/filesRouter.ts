@@ -2,7 +2,8 @@ import { NextFunction, Request, Response, Router } from "express";
 import FilesController from "../controllers/files.controller";
 import jwtGuard from "../middlewares/guards/jwt.guard";
 import multer from "multer";
-import FilesService from "../services/files.service";
+import FileService from "../services/files.service";
+import FileRepository from "../repositories/files.repository";
 
 const upload = multer({
    dest: "uploads",
@@ -13,11 +14,12 @@ const upload = multer({
 
 const filesRouter = Router();
 
-const filesService = new FilesService();
+const fileRepository = new FileRepository();
+const filesService = new FileService(fileRepository);
 const filesController = new FilesController(filesService);
 
 filesRouter.use(jwtGuard);
 filesRouter.get("/", filesController.getFiles);
-filesRouter.post("/", upload.array("files", 10), filesController.saveFiles);
+filesRouter.post("/", upload.array("files", 10), filesController.create);
 
 export default filesRouter;
