@@ -14,8 +14,9 @@ export type fileRepCreateFileDto = {
    name: string;
    type: string;
    userId: string;
-   path?: string;
-   size?: number
+   path: string;
+   size?: number;
+   parentId?: string
 };
 
 export abstract class FileRepositoryInterface implements Repository {

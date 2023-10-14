@@ -11,28 +11,39 @@ datasource db {
 }
 
 model User {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  email     String @unique
-  username  String @unique
-  diskSpace Int    @default(52428800)
-  usedSpace Int    @default(0)
-  avatar    String @default("")
-  hash      String
-  files     File[]
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  email      String      @unique
+  username   String      @unique
+  diskSpace  Int         @default(52428800)
+  usedSpace  Int         @default(0)
+  avatar     String      @default("")
+  hash       String
+  files      File[]
+  UserFolder UserFolder?
 }
 
 model File {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
   name       String
   type       String
   accessLink String?
-  size       Int      @default(0)
-  path       String   @default("")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now())
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId     String   @db.ObjectId
-  parent     File?    @relation("ChildFiles", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  parentId   String?  @db.ObjectId
-  childs     File[]   @relation("ChildFiles")
+  size       Int        @default(0)
+  path       String     @unique
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @default(now())
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId     String     @db.ObjectId
+  folder     UserFolder @relation(fields: [folderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  folderId   String     @db.ObjectId
+}
+
+model UserFolder {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  path      String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId    String   @unique @db.ObjectId
+  File      File[]
 }

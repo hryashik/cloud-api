@@ -12,32 +12,30 @@ interface IReqCreateFile extends Request {
 
 class FilesController {
    constructor(private filesService: FileService) {
-      this.getFiles = this.getFiles.bind(this)
-      this.create = this.create.bind(this)
+      this.getFiles = this.getFiles.bind(this);
+      this.create = this.create.bind(this);
    }
 
    async getFiles(req: Request, res: Response, next: NextFunction) {
       try {
          // JWT
-         const userId = req.user?.id
-         if (!userId) throw new CustomHttpError("Unauthorized", 401)
+         const userId = req.user?.id;
+         if (!userId) throw new CustomHttpError("Unauthorized", 401);
 
          const files = await this.filesService.getAllFiles(userId);
-         res.json(files).end()
+         res.json(files).end();
       } catch (error) {
          next(error);
       }
    }
 
-   async saveFiles(req: Request, res: Response, next: NextFunction) {
-      
-   }
+   async saveFiles(req: Request, res: Response, next: NextFunction) {}
 
    async create(req: IReqCreateFile, res: Response, next: NextFunction) {
       try {
          // JWT
          const userId = req.user?.id;
-         if (!userId) throw new CustomHttpError("Unauthorized", 401)
+         if (!userId) throw new CustomHttpError("Unauthorized", 401);
 
          // QUERY PATH
          const path = req.query.path as string | undefined;
@@ -47,10 +45,21 @@ class FilesController {
             const dir = await this.filesService.createDir({ name, path, userId });
             res.json(dir).end();
          } else {
-            res.send("OK")
+            res.send("OK");
          }
       } catch (error) {
          next(error);
+      }
+   }
+
+   async deleteFile(req: Request, res: Response, next: NextFunction) {
+      try {
+         const fileId = req.params.id;
+         const prisma = new PrismaService();
+         const data = await prisma
+         res.send("OK");
+      } catch (error) {
+         next(error)
       }
    }
 }
