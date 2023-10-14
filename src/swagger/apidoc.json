@@ -5,6 +5,12 @@
       "version": "1.0.0",
       "description": "Description cloud-api"
    },
+   "tags": [
+      {
+         "name": "auth",
+         "description": "User authentication"
+      }
+   ],
    "components": {
       "schemas": {
          "signupDto": {
@@ -48,7 +54,9 @@
    "paths": {
       "/auth/signup": {
          "post": {
+            "tags": ["auth"],
             "summary": "Signup",
+            "description": "Create a user, email and username must be unique",
             "requestBody": {
                "required": true,
                "content": {
@@ -78,7 +86,9 @@
       },
       "/auth/login": {
          "post": {
+            "tags": ["auth"],
             "summary": "Login",
+            "description": "Verify user by email and password",
             "requestBody": {
                "required": true,
                "content": {
@@ -99,6 +109,9 @@
                         }
                      }
                   }
+               },
+               "401": {
+                  "description": "Credentials is wrong"
                }
             }
          }

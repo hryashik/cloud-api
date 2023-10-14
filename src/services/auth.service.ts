@@ -27,13 +27,13 @@ export class AuthService implements AuthServiceInterface {
       // find user
       const user = await this.userRepository.findOne(dto.email);
       if (!user) {
-         throw new CustomHttpError("User not found", 403);
+         throw new CustomHttpError("User not found", 401);
       }
 
       // check hash
       const verifyPwd = await bcrypt.compare(dto.password, user.hash);
       if (!verifyPwd) {
-         throw new CustomHttpError("User not found", 403);
+         throw new CustomHttpError("User not found", 401);
       }
 
       // create token
