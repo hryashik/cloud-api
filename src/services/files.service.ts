@@ -1,7 +1,13 @@
 import { CustomHttpError } from "../errors/customHttpError";
-import { FileRepositoryInterface, fileRepCreateFileDto } from "../interfaces/repositoryInterface";
+import {
+   FileRepositoryInterface,
+   fileRepCreateFileDto,
+   fileRepCreateManyDto,
+} from "../interfaces/repositoryInterface";
 import { FileServiceInterface } from "../interfaces/servicesInterfaces";
+import { FileMulterType } from "../types/FileMulter";
 import { CreateDirDTO } from "../types/createDir.dto";
+import { extname } from "node:path";
 
 class FileService implements FileServiceInterface {
    constructor(private fileRepository: FileRepositoryInterface) {}
@@ -47,6 +53,40 @@ class FileService implements FileServiceInterface {
       }
 
       this.fileRepository.deleteMany(file.path);
+   }
+
+   async saveFile({
+      files,
+      path,
+      userId,
+   }: {
+      files: FileMulterType[];
+      path?: string;
+      userId: string;
+   }) {
+      const dto: fileRepCreateManyDto[] = [];
+      let parentId: string | undefined;
+
+      if (path) {
+         const parent = await this.fileRepository.findOneByPath(path);
+         if (!parent) throw new CustomHttpError("Incorrect parent path", 400)
+         parentId = parent.id;
+      }
+
+      files.forEach((el) => {
+         const obj: fileRepCreateManyDto = {
+            name: encodeURI(el.originalname),
+            path: path ? `${path}/${el.originalname}` : el.originalname,
+            type: extname(el.originalname),
+            userId,
+            size: el.size,
+            parentId,
+         };
+
+         dto.push(obj);
+      });
+      const data = await this.fileRepository.createMany(dto);
+      console.log(data);
    }
 }
 export default FileService;

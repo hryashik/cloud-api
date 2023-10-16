@@ -1,13 +1,36 @@
 import { File } from "@prisma/client";
 import { CustomRepositoryError } from "../errors/customRepositoryError";
-import { FileRepositoryInterface, fileRepCreateFileDto } from "../interfaces/repositoryInterface";
+import {
+   FileRepositoryInterface,
+   fileRepCreateFileDto,
+   fileRepCreateManyDto,
+} from "../interfaces/repositoryInterface";
 import { PrismaService } from "../prisma/prisma.service";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { CustomHttpError } from "../errors/customHttpError";
+
+async function deleteFileWithChildren(prisma: PrismaService, node: File) {
+   const children = await prisma.file.findMany({
+     where: {
+       parent: {
+         id: node.id,
+       },
+     },
+   });
+ 
+   for (const child of children) {
+     await deleteFileWithChildren(prisma, child);
+   }
+ 
+   await prisma.file.delete({
+     where: {
+       id: node.id,
+     },
+   });
+ }
 
 class FileRepository implements FileRepositoryInterface {
    private static instance: FileRepository;
    prisma: PrismaService = new PrismaService();
+
    constructor() {
       if (FileRepository.instance) {
          return FileRepository.instance;
@@ -35,10 +58,10 @@ class FileRepository implements FileRepositoryInterface {
       }
    }
 
-   async createFile({ name, type, userId, path }: fileRepCreateFileDto) {
+   async createFile(dto: fileRepCreateFileDto) {
       try {
          const file = await this.prisma.file.create({
-            data: { name, type, userId, path },
+            data: { ...dto },
          });
          return file;
       } catch (error) {
@@ -59,12 +82,24 @@ class FileRepository implements FileRepositoryInterface {
 
    async deleteMany(path: string): Promise<void> {
       try {
-         const data = await this.prisma.file.deleteMany({ where: { path: { contains: path } } });
+         const node = await this.findOneByPath(path) as File;
+         const data = await deleteFileWithChildren(this.prisma, node)
       } catch (error) {
          console.error(error);
          throw new CustomRepositoryError("Delete many", 500);
       }
    }
+
+   async createMany(args: fileRepCreateManyDto[]) {
+      try {
+         const files = await this.prisma.file.createMany({ data: args })
+         return files;
+      } catch (error) {
+         console.error(error);
+         throw new CustomRepositoryError("Error with file repository", 500);
+      }
+   }
+ 
 }
 
 export default FileRepository;

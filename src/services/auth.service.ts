@@ -1,11 +1,12 @@
 import { SignupDto } from "../types/signup.dto";
 import bcrypt from "bcrypt";
-
 import { CustomHttpError } from "../errors/customHttpError";
 import JWTService from "./jwt.service";
 import { LoginDto } from "../types/login.dto";
 import { AuthServiceInterface } from "../interfaces/servicesInterfaces";
 import { UserRepositoryInterface } from "../interfaces/repositoryInterface";
+import fs from "node:fs";
+import path from "node:path";
 
 export class AuthService implements AuthServiceInterface {
    constructor(private jwtService: JWTService, private userRepository: UserRepositoryInterface) {}
@@ -18,6 +19,18 @@ export class AuthService implements AuthServiceInterface {
 
       //create user
       const user = await this.userRepository.createFile(dto);
+
+      //create a user dir
+      const dirPath = path.join(process.cwd(), "uploads", user.id);
+      if (!fs.existsSync(dirPath)) {
+         fs.mkdir(dirPath, (e) => {
+            if (e) {
+               console.error(e);
+               throw new CustomHttpError("Internal server error", 500);
+            }
+         });
+      }
+
       //create token
       const token = this.jwtService.createToken(dto.email);
       return token;

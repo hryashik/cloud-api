@@ -19,10 +19,20 @@ export type fileRepCreateFileDto = {
    parentId?: string;
 };
 
+export type fileRepCreateManyDto = {
+   name: string;
+   type: string;
+   userId: string;
+   path: string;
+   size: number;
+   parentId?: string;
+};
+
 export abstract class FileRepositoryInterface implements Repository {
    abstract findOne(unique: string): Promise<File | null>;
    abstract createFile(args: fileRepCreateFileDto): Promise<File>;
    abstract findMany(userId: string): Promise<File[]>;
    abstract findOneByPath(path: string): Promise<File | null>;
    abstract deleteMany(path: string): void;
+   abstract createMany(args: fileRepCreateManyDto[]): any
 }

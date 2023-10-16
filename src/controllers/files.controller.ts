@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { CustomHttpError } from "../errors/customHttpError";
 import FileService from "../services/files.service";
-import { PrismaService } from "../prisma/prisma.service";
+import { extname } from "node:path";
+import { FileMulterType } from "../types/FileMulter";
 
 interface IReqCreateFile extends Request {
    body: {
@@ -50,6 +51,8 @@ class FilesController {
             const dir = await this.filesService.createDir({ name, path, userId });
             res.json(dir).end();
          } else {
+            const files = req.files as FileMulterType[];
+            await this.filesService.saveFile({files, path, userId})
             res.send("OK");
          }
       } catch (error) {
