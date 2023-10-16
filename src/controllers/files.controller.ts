@@ -39,6 +39,7 @@ class FilesController {
 
    async create(req: IReqCreateFile, res: Response, next: NextFunction) {
       try {
+         
          // JWT
          const userId = req.user?.id;
          if (!userId) throw new CustomHttpError("Unauthorized", 401);

@@ -1,17 +1,24 @@
 import { Router } from "express";
 import FilesController from "../controllers/files.controller";
 import jwtGuard from "../middlewares/guards/jwt.guard";
-import multer from "multer";
+import multer, { MulterError } from "multer";
 import FileService from "../services/files.service";
 import FileRepository from "../repositories/files.repository";
 import UserRepository from "../repositories/user.repository";
 import AuthService from "../services/auth.service";
 import JWTService from "../services/jwt.service";
+import { CustomHttpError } from "../errors/customHttpError";
 
 const upload = multer({
    dest: "uploads",
    limits: {
-      fileSize: 50 * 1024 * 1024
+      fileSize: 50 * 1024 * 1024,
+   },
+   fileFilter(req, file, callback) {
+      if (encodeURI(file.originalname).length > 30) {
+         return callback(new CustomHttpError("File name must contain no more 30 symbols", 413));
+      }
+      callback(null, true);
    },
 });
 const filesRouter = Router();
