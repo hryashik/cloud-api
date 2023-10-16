@@ -1,13 +1,11 @@
 import { CustomHttpError } from "../errors/customHttpError";
-import {
-   FileRepositoryInterface,
-   fileRepCreateFileDto,
-   fileRepCreateManyDto,
-} from "../interfaces/repositoryInterface";
+import { FileRepositoryInterface, fileRepCreateManyDto } from "../interfaces/repositoryInterface";
 import { FileServiceInterface } from "../interfaces/servicesInterfaces";
 import { FileMulterType } from "../types/FileMulter";
 import { CreateDirDTO } from "../types/createDir.dto";
 import { extname } from "node:path";
+import fs from "node:fs/promises";
+import { join } from "node:path";
 
 class FileService implements FileServiceInterface {
    constructor(private fileRepository: FileRepositoryInterface) {}
@@ -36,6 +34,10 @@ class FileService implements FileServiceInterface {
             path: currentPath,
             type: "dir",
          });
+
+         //create user dir
+         const dirPath = join(process.cwd(), "uploads", userId, currentPath);
+         await fs.mkdir(dirPath);
          return dir;
       }
    }
@@ -69,7 +71,7 @@ class FileService implements FileServiceInterface {
 
       if (path) {
          const parent = await this.fileRepository.findOneByPath(path);
-         if (!parent) throw new CustomHttpError("Incorrect parent path", 400)
+         if (!parent) throw new CustomHttpError("Incorrect parent path", 400);
          parentId = parent.id;
       }
 

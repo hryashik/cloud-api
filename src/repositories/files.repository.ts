@@ -6,6 +6,7 @@ import {
    fileRepCreateManyDto,
 } from "../interfaces/repositoryInterface";
 import { PrismaService } from "../prisma/prisma.service";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 async function deleteFileWithChildren(prisma: PrismaService, node: File) {
    const children = await prisma.file.findMany({
@@ -65,6 +66,9 @@ class FileRepository implements FileRepositoryInterface {
          });
          return file;
       } catch (error) {
+         if (error instanceof PrismaClientKnownRequestError && error.code === "P2002") {
+            throw new CustomRepositoryError("Dir with this name is exist", 409)
+         }
          console.error(error);
          throw new CustomRepositoryError("Some error with create file", 500);
       }
