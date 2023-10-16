@@ -9,11 +9,16 @@ interface IReqCreateFile extends Request {
       name: string;
    };
 }
-
+interface IReqDeleteBody extends Request {
+   body: {
+      fileId: string;
+   };
+}
 class FilesController {
    constructor(private filesService: FileService) {
       this.getFiles = this.getFiles.bind(this);
       this.create = this.create.bind(this);
+      this.deleteFile = this.deleteFile.bind(this);
    }
 
    async getFiles(req: Request, res: Response, next: NextFunction) {
@@ -52,14 +57,17 @@ class FilesController {
       }
    }
 
-   async deleteFile(req: Request, res: Response, next: NextFunction) {
+   async deleteFile(req: IReqDeleteBody, res: Response, next: NextFunction) {
       try {
-         const fileId = req.params.id;
-         const prisma = new PrismaService();
-         const data = await prisma
+         const fileId = req.params.fileId;
+         if (!fileId) throw new CustomHttpError("Bad request", 400);
+         const userId = req.user?.id;
+         if (!userId) throw new CustomHttpError("Unauthorized", 401);
+
+         await this.filesService.deleteFile({ userId, fileId });
          res.send("OK");
       } catch (error) {
-         next(error)
+         next(error);
       }
    }
 }

@@ -16,11 +16,13 @@ export type fileRepCreateFileDto = {
    userId: string;
    path: string;
    size?: number;
-   parentId?: string
+   parentId?: string;
 };
 
 export abstract class FileRepositoryInterface implements Repository {
    abstract findOne(unique: string): Promise<File | null>;
    abstract createFile(args: fileRepCreateFileDto): Promise<File>;
    abstract findMany(userId: string): Promise<File[]>;
+   abstract findOneByPath(path: string): Promise<File | null>;
+   abstract deleteMany(path: string): void;
 }

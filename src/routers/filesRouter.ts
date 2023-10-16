@@ -1,4 +1,4 @@
-/* import { NextFunction, Request, Response, Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import FilesController from "../controllers/files.controller";
 import jwtGuard from "../middlewares/guards/jwt.guard";
 import multer from "multer";
@@ -21,6 +21,6 @@ const filesController = new FilesController(filesService);
 filesRouter.use(jwtGuard);
 filesRouter.get("/", filesController.getFiles);
 filesRouter.post("/", upload.array("files", 10), filesController.create);
-filesRouter.delete("/:id", filesController.deleteFile)
+filesRouter.delete("/:fileId", filesController.deleteFile)
 
-export default filesRouter; */
+export default filesRouter;
