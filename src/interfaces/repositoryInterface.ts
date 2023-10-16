@@ -1,12 +1,13 @@
 import { File, User } from "@prisma/client";
 
 interface Repository {
-   findOne(unique: string): any;
+   findOneById(unique: string): any;
    createFile(...args: any): any;
 }
 
 export abstract class UserRepositoryInterface implements Repository {
-   abstract findOne(unique: string): Promise<User | null>;
+   abstract findOneByEmail(email: string): Promise<User | null>;
+   abstract findOneById(id: string): Promise<User | null>;
    abstract createFile(args: { username: string; password: string; email: string }): Promise<User>;
 }
 
@@ -29,10 +30,10 @@ export type fileRepCreateManyDto = {
 };
 
 export abstract class FileRepositoryInterface implements Repository {
-   abstract findOne(unique: string): Promise<File | null>;
+   abstract findOneById(unique: string): Promise<File | null>;
    abstract createFile(args: fileRepCreateFileDto): Promise<File>;
    abstract findMany(userId: string): Promise<File[]>;
    abstract findOneByPath(path: string): Promise<File | null>;
    abstract deleteMany(path: string): void;
-   abstract createMany(args: fileRepCreateManyDto[]): any
+   abstract createMany(args: fileRepCreateManyDto[]): any;
 }

@@ -1,14 +1,22 @@
 import { CustomHttpError } from "../errors/customHttpError";
-import { FileRepositoryInterface, fileRepCreateManyDto } from "../interfaces/repositoryInterface";
-import { FileServiceInterface } from "../interfaces/servicesInterfaces";
+import {
+   FileRepositoryInterface,
+   UserRepositoryInterface,
+   fileRepCreateManyDto,
+} from "../interfaces/repositoryInterface";
+import { AuthServiceInterface, FileServiceInterface } from "../interfaces/servicesInterfaces";
 import { FileMulterType } from "../types/FileMulter";
 import { CreateDirDTO } from "../types/createDir.dto";
 import { extname } from "node:path";
 import fs from "node:fs/promises";
 import { join } from "node:path";
+import { User } from "@prisma/client";
 
 class FileService implements FileServiceInterface {
-   constructor(private fileRepository: FileRepositoryInterface) {}
+   constructor(
+      private fileRepository: FileRepositoryInterface,
+      private userService: AuthServiceInterface
+   ) {}
 
    async createDir({ path, name, userId }: CreateDirDTO) {
       if (path) {
@@ -25,6 +33,11 @@ class FileService implements FileServiceInterface {
             type: "dir",
             parentId: parent.id,
          });
+
+         //create user dir
+         const dirPath = join(process.cwd(), "uploads", userId, currentPath);
+         await fs.mkdir(dirPath);
+
          return dir;
       } else {
          const currentPath = name;
@@ -49,11 +62,12 @@ class FileService implements FileServiceInterface {
 
    async deleteFile({ userId, fileId }: { userId: string; fileId: string }) {
       // find file
-      const file = await this.fileRepository.findOne(fileId);
+      const file = await this.fileRepository.findOneById(fileId);
       if (!file || file.userId !== userId) {
          throw new CustomHttpError("Incorrect data", 400);
       }
 
+      await fs.rm(join(process.cwd(), "uploads", file.userId, file.path), { recursive: true });
       this.fileRepository.deleteMany(file.path);
    }
 
@@ -75,20 +89,45 @@ class FileService implements FileServiceInterface {
          parentId = parent.id;
       }
 
+      // FIND USER
+      const user = (await this.userService.getUserById(userId)) as User;
+      let filesSize = 0;
+
+      // FORMATING DATA FOR DTO
       files.forEach((el) => {
+         const encodeFileName = encodeURI(el.originalname);
          const obj: fileRepCreateManyDto = {
-            name: encodeURI(el.originalname),
-            path: path ? `${path}/${el.originalname}` : el.originalname,
+            name: encodeFileName,
+            path: path ? `${path}/${encodeFileName}` : encodeFileName,
             type: extname(el.originalname),
             userId,
             size: el.size,
             parentId,
          };
-
+         filesSize += el.size;
          dto.push(obj);
       });
-      const data = await this.fileRepository.createMany(dto);
-      console.log(data);
+
+      // check available disk size
+      if (user.diskSpace - user.usedSpace >= filesSize) {
+         const data = await this.fileRepository.createMany(dto);
+
+         //move files in user dir
+         files.forEach(async (file) => {
+            const encodeFileName = encodeURI(file.originalname);
+            const oldFilePath = join(process.cwd(), "uploads", file.filename);
+            const newFilePath = join(
+               process.cwd(),
+               "uploads",
+               userId,
+               path ? path : "",
+               encodeFileName
+            );
+            await fs.rename(oldFilePath, newFilePath);
+         });
+      } else {
+         throw new CustomHttpError("Not enough disk space", 403);
+      }
    }
 }
 export default FileService;

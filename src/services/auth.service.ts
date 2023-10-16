@@ -38,7 +38,7 @@ export class AuthService implements AuthServiceInterface {
 
    async checkCredentials(dto: LoginDto): Promise<string> {
       // find user
-      const user = await this.userRepository.findOne(dto.email);
+      const user = await this.userRepository.findOneById(dto.email);
       if (!user) {
          throw new CustomHttpError("Credentials is wrong", 401);
       }
@@ -52,6 +52,12 @@ export class AuthService implements AuthServiceInterface {
       // create token
       const token = this.jwtService.createToken(dto.email);
       return token;
+   }
+
+   async getUserById(userId: string) {
+      const user = await this.userRepository.findOneById(userId);
+      if (!user) throw new CustomHttpError("Unauthorized", 401);
+      return user
    }
 }
 

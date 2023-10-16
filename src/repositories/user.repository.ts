@@ -2,7 +2,6 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { CustomRepositoryError } from "../errors/customRepositoryError";
 import { UserRepositoryInterface } from "../interfaces/repositoryInterface";
 import { PrismaService } from "../prisma/prisma.service";
-import { CustomHttpError } from "../errors/customHttpError";
 
 class UserRepository implements UserRepositoryInterface {
    private static instance: UserRepository | null;
@@ -15,7 +14,21 @@ class UserRepository implements UserRepositoryInterface {
       UserRepository.instance = this;
    }
 
-   async findOne(email: string) {
+   async findOneById(id: string) {
+      try {
+         const user = this.prisma.user.findUnique({
+            where: {
+               id,
+            },
+         });
+         return user;
+      } catch (error) {
+         console.error(error);
+         throw new CustomRepositoryError("Some error with DB", 500);
+      }
+   }
+
+   async findOneByEmail(email: string) {
       try {
          const user = this.prisma.user.findUnique({
             where: {

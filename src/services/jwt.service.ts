@@ -28,7 +28,7 @@ class JWTService implements JWTServiceInterface{
       try {
          const key = process.env.JWT_KEY!!;
          const { email } = jwt.verify(token, key) as { email: string };
-         const user = await this.userRepository.findOne(email);
+         const user = await this.userRepository.findOneByEmail(email);
          return user;
       } catch (error) {
          if (error instanceof TokenExpiredError) {

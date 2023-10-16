@@ -10,9 +10,10 @@ export interface JWTServiceInterface {
 export interface AuthServiceInterface {
    createUser(dto: SignupDto): Promise<string>;
    checkCredentials(dto: LoginDto): Promise<string>;
+   getUserById(userId: string): Promise<User>;
 }
 
 export interface FileServiceInterface {
    createDir(dto: { name: string; userId: string }): Promise<File>;
-   deleteFile(args: {userId: string, fileId: string}): void;
+   deleteFile(args: { userId: string; fileId: string }): void;
 }
