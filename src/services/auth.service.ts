@@ -18,7 +18,7 @@ export class AuthService implements AuthServiceInterface {
       dto.password = hashedPassword;
 
       //create user
-      const user = await this.userRepository.createFile(dto);
+      const user = await this.userRepository.create(dto);
 
       //create a user dir
       const dirPath = path.join(process.cwd(), "uploads", user.id);
@@ -57,7 +57,13 @@ export class AuthService implements AuthServiceInterface {
    async getUserById(userId: string) {
       const user = await this.userRepository.findOneById(userId);
       if (!user) throw new CustomHttpError("Unauthorized", 401);
-      return user
+      return user;
+   }
+
+   async updateUser(userId: string, data: { email?: string; usedSpace?: number; avatar?: string }) {
+      const user = await this.userRepository.updateOne({ userId, data });
+      if (!user) throw new CustomHttpError("Unauthorized", 401);
+      return user;
    }
 }
 

@@ -11,6 +11,10 @@ export interface AuthServiceInterface {
    createUser(dto: SignupDto): Promise<string>;
    checkCredentials(dto: LoginDto): Promise<string>;
    getUserById(userId: string): Promise<User>;
+   updateUser(
+      userId: string,
+      data: { email?: string; usedSpace?: number; avatar?: string }
+   ): Promise<User>;
 }
 
 export interface FileServiceInterface {

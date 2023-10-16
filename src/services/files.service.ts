@@ -1,9 +1,5 @@
 import { CustomHttpError } from "../errors/customHttpError";
-import {
-   FileRepositoryInterface,
-   UserRepositoryInterface,
-   fileRepCreateManyDto,
-} from "../interfaces/repositoryInterface";
+import { FileRepositoryInterface, fileRepCreateManyDto } from "../interfaces/repositoryInterface";
 import { AuthServiceInterface, FileServiceInterface } from "../interfaces/servicesInterfaces";
 import { FileMulterType } from "../types/FileMulter";
 import { CreateDirDTO } from "../types/createDir.dto";
@@ -26,7 +22,7 @@ class FileService implements FileServiceInterface {
          }
 
          const currentPath = `${path}/${name}`;
-         const dir = await this.fileRepository.createFile({
+         const dir = await this.fileRepository.create({
             name,
             userId,
             path: currentPath,
@@ -41,7 +37,7 @@ class FileService implements FileServiceInterface {
          return dir;
       } else {
          const currentPath = name;
-         const dir = await this.fileRepository.createFile({
+         const dir = await this.fileRepository.create({
             name,
             userId,
             path: currentPath,
@@ -67,8 +63,18 @@ class FileService implements FileServiceInterface {
          throw new CustomHttpError("Incorrect data", 400);
       }
 
+      await this.fileRepository.deleteMany(file.path);
       await fs.rm(join(process.cwd(), "uploads", file.userId, file.path), { recursive: true });
-      this.fileRepository.deleteMany(file.path);
+
+      // calculate new disk space
+      const files = await this.getAllFiles(userId);
+      let size = 0;
+      files.forEach((file) => {
+         size += file.size;
+      });
+
+      //update user
+      await this.userService.updateUser(userId, { usedSpace: size });
    }
 
    async saveFile({
@@ -123,6 +129,7 @@ class FileService implements FileServiceInterface {
                path ? path : "",
                encodeFileName
             );
+            await this.userService.updateUser(userId, { usedSpace: filesSize });
             await fs.rename(oldFilePath, newFilePath);
          });
       } else {

@@ -1,14 +1,16 @@
 import { File, User } from "@prisma/client";
+import { UpdateUserDto } from "../types/updateUser.dto";
 
 interface Repository {
    findOneById(unique: string): any;
-   createFile(...args: any): any;
+   create(...args: any): any;
 }
 
 export abstract class UserRepositoryInterface implements Repository {
    abstract findOneByEmail(email: string): Promise<User | null>;
    abstract findOneById(id: string): Promise<User | null>;
-   abstract createFile(args: { username: string; password: string; email: string }): Promise<User>;
+   abstract create(args: { username: string; password: string; email: string }): Promise<User>;
+   abstract updateOne(params: UpdateUserDto): Promise<User | null>;
 }
 
 export type fileRepCreateFileDto = {
@@ -31,9 +33,9 @@ export type fileRepCreateManyDto = {
 
 export abstract class FileRepositoryInterface implements Repository {
    abstract findOneById(unique: string): Promise<File | null>;
-   abstract createFile(args: fileRepCreateFileDto): Promise<File>;
+   abstract create(args: fileRepCreateFileDto): Promise<File>;
    abstract findMany(userId: string): Promise<File[]>;
    abstract findOneByPath(path: string): Promise<File | null>;
-   abstract deleteMany(path: string): void;
+   abstract deleteMany(path: string): Promise<void>;
    abstract createMany(args: fileRepCreateManyDto[]): any;
 }

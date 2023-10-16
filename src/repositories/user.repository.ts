@@ -2,6 +2,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { CustomRepositoryError } from "../errors/customRepositoryError";
 import { UserRepositoryInterface } from "../interfaces/repositoryInterface";
 import { PrismaService } from "../prisma/prisma.service";
+import { UpdateUserDto } from "../types/updateUser.dto";
 
 class UserRepository implements UserRepositoryInterface {
    private static instance: UserRepository | null;
@@ -42,7 +43,7 @@ class UserRepository implements UserRepositoryInterface {
       }
    }
 
-   async createFile({
+   async create({
       email,
       username,
       password,
@@ -68,6 +69,15 @@ class UserRepository implements UserRepositoryInterface {
             console.error(error);
             throw new CustomRepositoryError("@AUTH-REPOSITORY ERROR", 500);
          }
+      }
+   }
+
+   async updateOne({ data, userId }: UpdateUserDto) {
+      try {
+         const user = await this.prisma.user.update({ where: { id: userId }, data: { ...data } });
+         return user;
+      } catch (error) {
+         throw new CustomRepositoryError("Internal server error", 500)
       }
    }
 }

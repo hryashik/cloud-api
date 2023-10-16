@@ -59,7 +59,7 @@ class FileRepository implements FileRepositoryInterface {
       }
    }
 
-   async createFile(dto: fileRepCreateFileDto) {
+   async create(dto: fileRepCreateFileDto) {
       try {
          const file = await this.prisma.file.create({
             data: { ...dto },
