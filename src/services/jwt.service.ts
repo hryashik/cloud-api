@@ -1,4 +1,4 @@
-import jwt, { TokenExpiredError } from "jsonwebtoken";
+import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import UserRepository from "../repositories/user.repository";
 import { CustomHttpError } from "../errors/customHttpError";
 import { JWTServiceInterface } from "../interfaces/servicesInterfaces";
@@ -33,6 +33,8 @@ class JWTService implements JWTServiceInterface{
       } catch (error) {
          if (error instanceof TokenExpiredError) {
             throw new CustomHttpError("Token is expired", 403);
+         } else if (error instanceof JsonWebTokenError) {
+            throw new CustomHttpError("Token is malformed", 401)
          }
          console.log(error)
          throw new Error("JWT VERIFY ERROR");

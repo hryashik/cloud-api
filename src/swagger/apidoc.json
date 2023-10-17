@@ -9,6 +9,10 @@
       {
          "name": "auth",
          "description": "User authentication"
+      },
+      {
+         "name": "files",
+         "description": "Operations with files"
       }
    ],
    "components": {
@@ -48,13 +52,95 @@
                   "type": "string"
                }
             }
+         },
+         "userInfo": {
+            "type": "object",
+            "properties": {
+               "email": {
+                  "type": "string",
+                  "format": "email"
+               },
+               "usedSpace": {
+                  "type": "number"
+               },
+               "diskSpace": {
+                  "type": "number"
+               },
+               "username": {
+                  "type": "string"
+               },
+               "avatar": {
+                  "type": "string"
+               },
+               "id": {
+                  "type": "string"
+               }
+            }
+         },
+         "updateUserDto": {
+            "type": "object",
+            "description": "Update user dto",
+            "properties": {
+               "email": {
+                  "type": "string",
+                  "format": "email"
+               },
+               "avatar": {
+                  "type": "string"
+               },
+               "username": {
+                  "type": "string"
+               }
+            }
+         },
+         "fileDto": {
+            "type": "object",
+            "description": "File fields",
+            "properties": {
+               "id": {
+                  "type": "string"
+               },
+               "name": {
+                  "type": "string"
+               },
+               "type": {
+                  "type": "string"
+               },
+               "size": {
+                  "type": "number"
+               },
+               "path": {
+                  "type": "string"
+               },
+               "createdAt": {
+                  "type": "string"
+               },
+               "updatedAt": {
+                  "type": "string"
+               },
+               "userId": {
+                  "type": "string"
+               },
+               "parentId": {
+                  "type": "string"
+               }
+            }
+         },
+         "securitySchemes": {
+            "bearerAuth": {
+               "type": "http",
+               "scheme": "bearer",
+               "bearerFormat": "JWT"
+            }
          }
       }
    },
    "paths": {
       "/auth/signup": {
          "post": {
-            "tags": ["auth"],
+            "tags": [
+               "auth"
+            ],
             "summary": "Signup",
             "description": "Create a user, email and username must be unique",
             "requestBody": {
@@ -86,7 +172,9 @@
       },
       "/auth/login": {
          "post": {
-            "tags": ["auth"],
+            "tags": [
+               "auth"
+            ],
             "summary": "Login",
             "description": "Verify user by email and password",
             "requestBody": {
@@ -112,6 +200,211 @@
                },
                "401": {
                   "description": "Credentials is wrong"
+               }
+            }
+         }
+      },
+      "/auth/user": {
+         "get": {
+            "tags": [
+               "auth"
+            ],
+            "security": [
+               {
+                  "bearerAuth": []
+               }
+            ],
+            "summary": "Get user info",
+            "description": "Verify user by token and return user info",
+            "responses": {
+               "200": {
+                  "description": "OK",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/userInfo"
+                        }
+                     }
+                  }
+               },
+               "401": {
+                  "description": "Token is malformed"
+               },
+               "403": {
+                  "description": "Token is expired"
+               }
+            }
+         },
+         "patch": {
+            "tags": [
+               "auth"
+            ],
+            "security": [
+               {
+                  "bearerAuth": []
+               }
+            ],
+            "summary": "Update user",
+            "requestBody": {
+               "required": true,
+               "description": "Data than needs to be updated",
+               "content": {
+                  "application/json": {
+                     "schema": {
+                        "$ref": "#/components/schemas/updateUserDto"
+                     }
+                  }
+               }
+            },
+            "responses": {
+               "200": {
+                  "description": "OK",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/userInfo"
+                        }
+                     }
+                  }
+               },
+               "401": {
+                  "description": "Token is malformed"
+               },
+               "403": {
+                  "description": "Token is expired"
+               }
+            }
+         }
+      },
+      "/files": {
+         "get": {
+            "tags": [
+               "files"
+            ],
+            "security": [
+               {
+                  "bearerAuth": []
+               }
+            ],
+            "summary": "Get all user files",
+            "description": "Get all files with directories",
+            "responses": {
+               "200": {
+                  "description": "OK",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "type": "array",
+                           "items": {
+                              "$ref": "#/components/schemas/fileDto"
+                           }
+                        }
+                     }
+                  }
+               },
+               "401": {
+                  "description": "Token is malformed"
+               },
+               "403": {
+                  "description": "Token is expired"
+               }
+            }
+         },
+         "post": {
+            "tags": [
+               "files"
+            ],
+            "security": [
+               {
+                  "bearerAuth": []
+               }
+            ],
+            "parameters": [
+               {
+                  "name": "path",
+                  "in": "query",
+                  "description": "path to need to save files",
+                  "explode": true,
+                  "required": false,
+                  "schema": {
+                     "type": "string",
+                     "example": "dir1/dir2"
+                  }
+               }
+            ],
+            "summary": "Save file",
+            "description": "Save file or create dir",
+            "responses": {
+               "200": {
+                  "description": "OK",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/fileDto"
+                        }
+                     }
+                  }
+               },
+               "401": {
+                  "description": "Token is malformed"
+               },
+               "403": {
+                  "description": "Not enough disk space"
+               },
+               "409": {
+                  "description": "File with this name is exist"
+               },
+               "413": {
+                  "description": "File payload is too big"
+               }
+            }
+         }
+      },
+      "/files/{fileId}": {
+         "delete": {
+            "tags": [
+               "files"
+            ],
+            "security": [
+               {
+                  "bearerAuth": []
+               }
+            ],
+            "parameters": [
+               {
+                  "name": "fileId",
+                  "in": "path",
+                  "description": "file than to need to delete",
+                  "explode": true,
+                  "required": true,
+                  "schema": {
+                     "type": "string",
+                     "example": "12sad23zxfxcf"
+                  }
+               }
+            ],
+            "summary": "Delete file",
+            "description": "Delete file by id",
+            "responses": {
+               "200": {
+                  "description": "OK",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "type": "string",
+                           "example": "OK"
+                        }
+                     }
+                  }
+               },
+               "401": {
+                  "description": "Token is malformed"
+               },
+               "403": {
+                  "description": "Token is expired"
+               },
+               "404": {
+                  "description": "File does not exist"
                }
             }
          }

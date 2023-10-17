@@ -6,8 +6,8 @@ import { FileMulterType } from "../types/FileMulter";
 
 interface IReqCreateFile extends Request {
    body: {
-      type: "dir" | "file";
-      name: string;
+      type?: string;
+      name?: string;
    };
 }
 interface IReqDeleteBody extends Request {
@@ -35,11 +35,8 @@ class FilesController {
       }
    }
 
-   async saveFiles(req: Request, res: Response, next: NextFunction) {}
-
    async create(req: IReqCreateFile, res: Response, next: NextFunction) {
       try {
-         
          // JWT
          const userId = req.user?.id;
          if (!userId) throw new CustomHttpError("Unauthorized", 401);
@@ -49,11 +46,12 @@ class FilesController {
          const { name, type } = req.body;
 
          if (type === "dir") {
+            if (!name) throw new CustomHttpError('Field "path" is require', 400);
             const dir = await this.filesService.createDir({ name, path, userId });
             res.json(dir).end();
          } else {
             const files = req.files as FileMulterType[];
-            await this.filesService.saveFile({files, path, userId})
+            await this.filesService.saveFile({ files, path, userId });
             res.send("OK");
          }
       } catch (error) {

@@ -18,8 +18,8 @@ const authController = new AuthController(authService);
 
 const authRouter = Router();
 
-authRouter.get("/user", jwtGuard, authController.getUserByToken)
-authRouter.patch("/user", authController.updateUser)
+authRouter.get("/user", jwtGuard, authController.getUserByToken);
+authRouter.patch("/user", jwtGuard, authController.updateUser);
 authRouter.post("/signup", authSignupValidate, authController.signup);
 authRouter.post("/login", authLoginValidate, authController.login);
 
