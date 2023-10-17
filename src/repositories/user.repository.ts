@@ -77,7 +77,7 @@ class UserRepository implements UserRepositoryInterface {
          const user = await this.prisma.user.update({ where: { id: userId }, data: { ...data } });
          return user;
       } catch (error) {
-         throw new CustomRepositoryError("Internal server error", 500)
+         throw new CustomRepositoryError("Internal server error", 500);
       }
    }
 }

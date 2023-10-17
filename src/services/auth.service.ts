@@ -38,7 +38,7 @@ export class AuthService implements AuthServiceInterface {
 
    async checkCredentials(dto: LoginDto): Promise<string> {
       // find user
-      const user = await this.userRepository.findOneById(dto.email);
+      const user = await this.userRepository.findOneByEmail(dto.email);
       if (!user) {
          throw new CustomHttpError("Credentials is wrong", 401);
       }
@@ -57,7 +57,9 @@ export class AuthService implements AuthServiceInterface {
    async getUserById(userId: string) {
       const user = await this.userRepository.findOneById(userId);
       if (!user) throw new CustomHttpError("Unauthorized", 401);
-      return user;
+
+      const { hash, ...dto } = user;
+      return dto;
    }
 
    async updateUser(userId: string, data: { email?: string; usedSpace?: number; avatar?: string }) {

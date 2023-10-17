@@ -1,5 +1,6 @@
 import { File, User } from "@prisma/client";
 import { UpdateUserDto } from "../types/updateUser.dto";
+import { UserDto } from "../types/user.dto";
 
 interface Repository {
    findOneById(unique: string): any;
