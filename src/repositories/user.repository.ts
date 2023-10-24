@@ -77,6 +77,9 @@ class UserRepository implements UserRepositoryInterface {
          const user = await this.prisma.user.update({ where: { id: userId }, data: { ...data } });
          return user;
       } catch (error) {
+         if (error instanceof PrismaClientKnownRequestError && error.code === "P2002") {
+            throw new CustomRepositoryError("Credentials is taken", 403);
+         }
          throw new CustomRepositoryError("Internal server error", 500);
       }
    }

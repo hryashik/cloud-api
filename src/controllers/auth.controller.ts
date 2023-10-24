@@ -72,7 +72,7 @@ export default class AuthController {
 
          const dto = req.body;
          const user = await this.authService.updateUser(userId, dto);
-         return user;
+         res.json(user);
       } catch (error) {
          next(error);
       }
