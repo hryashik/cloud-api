@@ -44,6 +44,7 @@ class FilesController {
    }
 
    async create(req: IReqCreateFile, res: Response, next: NextFunction) {
+      console.log(1)
       try {
          // JWT
          const userId = req.user?.id;

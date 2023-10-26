@@ -103,7 +103,7 @@ class FileService implements FileServiceInterface {
 
       // FORMATING DATA FOR DTO
       files.forEach((el) => {
-         const encodeFileName = encodeURI(el.originalname);
+         const encodeFileName = decodeURI(el.originalname);
          const obj: fileRepCreateManyDto = {
             name: encodeFileName,
             path: path ? `${path}/${encodeFileName}` : encodeFileName,
@@ -122,7 +122,7 @@ class FileService implements FileServiceInterface {
 
          //move files in user dir
          files.forEach(async (file) => {
-            const encodeFileName = encodeURI(file.originalname);
+            const encodeFileName = decodeURI(file.originalname);
             const oldFilePath = join(process.cwd(), "uploads", file.filename);
             const newFilePath = join(
                process.cwd(),
