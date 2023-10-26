@@ -39,5 +39,6 @@ filesRouter.use(jwtGuard);
 filesRouter.get("/", filesController.getFiles);
 filesRouter.post("/", upload.array("files", 10), filesController.create);
 filesRouter.delete("/:fileId", filesController.deleteFile);
+filesRouter.post("/upload", filesController.uploadFiles);
 
 export default filesRouter;

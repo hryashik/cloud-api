@@ -7,6 +7,8 @@ import { extname } from "node:path";
 import fs from "node:fs/promises";
 import { join } from "node:path";
 import { User } from "@prisma/client";
+import { Response } from "express";
+import archiver from "archiver";
 
 class FileService implements FileServiceInterface {
    constructor(
@@ -135,6 +137,24 @@ class FileService implements FileServiceInterface {
       } else {
          throw new CustomHttpError("Not enough disk space", 403);
       }
+   }
+
+   async loadFiles({ userId, res, ids }: { ids: string[]; userId: string; res: Response }) {
+      const files = (await this.getAllFiles(userId)).filter((file) => ids.includes(file.id));
+      
+      const archive = archiver("zip", { zlib: { level: 9 } });
+         res.type("zip");
+
+         files.forEach((file) => {
+            const filePath = join(process.cwd(), "uploads", userId, file.path);
+            if (file.type === "dir") {
+               archive.directory(filePath, file.name);
+            } else {
+               archive.file(filePath, { name: file.name });
+            }
+         });
+         archive.pipe(res);
+         archive.finalize().then(() => res.end());
    }
 }
 export default FileService;
