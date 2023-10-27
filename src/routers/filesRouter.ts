@@ -37,9 +37,10 @@ const filesController = new FilesController(filesService);
 
 filesRouter.use(jwtGuard);
 filesRouter.get("/", filesController.getFiles);
-filesRouter.get("/:id", filesController.getFileById)
+filesRouter.get("/:id", filesController.getFileById);
 filesRouter.post("/", upload.array("files", 10), filesController.create);
 filesRouter.delete("/:fileId", filesController.deleteFile);
 filesRouter.post("/upload", filesController.uploadFiles);
+filesRouter.put("/:fileId", filesController.updateContentFile);
 
 export default filesRouter;

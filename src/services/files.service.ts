@@ -5,12 +5,13 @@ import { FileMulterType } from "../types/FileMulter";
 import { CreateDirDTO } from "../types/createDir.dto";
 import { extname } from "node:path";
 import fs from "node:fs/promises";
-import { createReadStream } from "node:fs";
+import { createReadStream, createWriteStream } from "node:fs";
 import { join } from "node:path";
 import { User } from "@prisma/client";
 import { Response } from "express";
 import archiver from "archiver";
 import { getFileByIdDto } from "../types/getFileById.dto";
+import { updateFileDto } from "../types/updateFileDto";
 
 class FileService implements FileServiceInterface {
    constructor(
@@ -169,6 +170,32 @@ class FileService implements FileServiceInterface {
          readStream.pipe(res);
          readStream.on("end", () => readStream.close());
       }
+   }
+
+   async updateFile({ data, userId, fileId }: updateFileDto) {
+      const file = await this.fileRepository.updateOne({ data, fileId, userId });
+   }
+
+   async updateContentFile({
+      fileId,
+      userId,
+      content,
+   }: {
+      userId: string;
+      fileId: string;
+      content: string;
+   }) {
+      const file = await this.fileRepository.findOneById(fileId);
+      if (!file || file.userId !== userId) throw new CustomHttpError("Have no access to file", 403);
+
+      const localFilePath = join(process.cwd(), "uploads", userId, file.path);
+      await fs.writeFile(localFilePath, content);
+
+      const newFileSize = (await fs.stat(localFilePath)).size;
+      await this.fileRepository.updateOne({ data: { size: newFileSize }, fileId, userId });
+      const differenceSize = newFileSize - file.size;
+      const user = await this.userService.getUserById(userId);
+      await this.userService.updateUser(userId, { usedSpace: user.usedSpace + differenceSize });
    }
 }
 export default FileService;

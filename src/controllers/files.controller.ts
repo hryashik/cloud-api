@@ -1,10 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { CustomHttpError } from "../errors/customHttpError";
 import FileService from "../services/files.service";
-import { extname, join } from "node:path";
 import { FileMulterType } from "../types/FileMulter";
-import * as fs from "node:fs";
-import archiver from "archiver";
 
 interface IReqCreateFile extends Request {
    body: {
@@ -22,6 +19,12 @@ interface IReqUploadFiles extends Request {
       files: string[];
    };
 }
+interface IReqUpdateFile extends Request {
+   body: {
+      content: string;
+   };
+}
+
 class FilesController {
    constructor(private filesService: FileService) {
       this.getFiles = this.getFiles.bind(this);
@@ -29,6 +32,7 @@ class FilesController {
       this.deleteFile = this.deleteFile.bind(this);
       this.uploadFiles = this.uploadFiles.bind(this);
       this.getFileById = this.getFileById.bind(this);
+      this.updateContentFile = this.updateContentFile.bind(this);
    }
 
    async getFiles(req: Request, res: Response, next: NextFunction) {
@@ -102,6 +106,20 @@ class FilesController {
          const fileId = req.params.id;
 
          await this.filesService.getFile({ userId, fileId, res });
+      } catch (error) {
+         next(error);
+      }
+   }
+
+   async updateContentFile(req: IReqUpdateFile, res: Response, next: NextFunction) {
+      try {
+         const userId = req.user?.id;
+         if (!userId) throw new CustomHttpError("Unauthorized", 401);
+
+         const fileId = req.params.fileId;
+
+         await this.filesService.updateContentFile({ userId, content: req.body.content, fileId });
+         res.send("OK")
       } catch (error) {
          next(error);
       }

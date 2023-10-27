@@ -7,6 +7,7 @@ import {
 } from "../interfaces/repositoryInterface";
 import { PrismaService } from "../prisma/prisma.service";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { updateFileDto } from "../types/updateFileDto";
 
 async function deleteFileWithChildren(prisma: PrismaService, node: File) {
    const children = await prisma.file.findMany({
@@ -104,6 +105,25 @@ class FileRepository implements FileRepositoryInterface {
          }
          console.error(error);
          throw new CustomRepositoryError("Error with file repository", 500);
+      }
+   }
+
+   async updateOne({
+      data,
+      fileId,
+      userId,
+   }: updateFileDto) {
+      try {
+         const file = await this.prisma.file.update({
+            where: { id: fileId, userId },
+            data: { ...data },
+         });
+         return file;
+      } catch (error) {
+         if (error instanceof PrismaClientKnownRequestError && error.code === "P2002") {
+            throw new CustomRepositoryError("Credentials is taken", 409);
+         }
+         throw new Error();
       }
    }
 }
