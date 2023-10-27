@@ -28,6 +28,7 @@ class FilesController {
       this.create = this.create.bind(this);
       this.deleteFile = this.deleteFile.bind(this);
       this.uploadFiles = this.uploadFiles.bind(this);
+      this.getFileById = this.getFileById.bind(this);
    }
 
    async getFiles(req: Request, res: Response, next: NextFunction) {
@@ -44,7 +45,7 @@ class FilesController {
    }
 
    async create(req: IReqCreateFile, res: Response, next: NextFunction) {
-      console.log(1)
+      console.log(1);
       try {
          // JWT
          const userId = req.user?.id;
@@ -89,6 +90,18 @@ class FilesController {
 
          const files = req.body.files;
          await this.filesService.loadFiles({ userId, ids: files, res });
+      } catch (error) {
+         next(error);
+      }
+   }
+
+   async getFileById(req: Request, res: Response, next: NextFunction) {
+      try {
+         const userId = req.user?.id;
+         if (!userId) throw new CustomHttpError("Unauthorized", 401);
+         const fileId = req.params.id;
+
+         await this.filesService.getFile({ userId, fileId, res });
       } catch (error) {
          next(error);
       }

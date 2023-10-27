@@ -5,10 +5,12 @@ import { FileMulterType } from "../types/FileMulter";
 import { CreateDirDTO } from "../types/createDir.dto";
 import { extname } from "node:path";
 import fs from "node:fs/promises";
+import { createReadStream } from "node:fs";
 import { join } from "node:path";
 import { User } from "@prisma/client";
 import { Response } from "express";
 import archiver from "archiver";
+import { getFileByIdDto } from "../types/getFileById.dto";
 
 class FileService implements FileServiceInterface {
    constructor(
@@ -141,20 +143,32 @@ class FileService implements FileServiceInterface {
 
    async loadFiles({ userId, res, ids }: { ids: string[]; userId: string; res: Response }) {
       const files = (await this.getAllFiles(userId)).filter((file) => ids.includes(file.id));
-      
-      const archive = archiver("zip", { zlib: { level: 9 } });
-         res.type("zip");
 
-         files.forEach((file) => {
-            const filePath = join(process.cwd(), "uploads", userId, file.path);
-            if (file.type === "dir") {
-               archive.directory(filePath, file.name);
-            } else {
-               archive.file(filePath, { name: file.name });
-            }
-         });
-         archive.pipe(res);
-         archive.finalize().then(() => res.end());
+      const archive = archiver("zip", { zlib: { level: 9 } });
+      res.type("zip");
+
+      files.forEach((file) => {
+         const filePath = join(process.cwd(), "uploads", userId, file.path);
+         if (file.type === "dir") {
+            archive.directory(filePath, file.name);
+         } else {
+            archive.file(filePath, { name: file.name });
+         }
+      });
+      archive.pipe(res);
+      archive.finalize().then(() => res.end());
+   }
+
+   async getFile({ userId, fileId, res }: getFileByIdDto) {
+      const file = await this.fileRepository.findOneById(fileId);
+      if (!file || file.userId !== userId) throw new CustomHttpError("Have no access to file", 403);
+
+      if (file.type === ".json" || file.type === ".txt") {
+         const localFilePath = join(process.cwd(), "uploads", userId, file.path);
+         const readStream = createReadStream(localFilePath);
+         readStream.pipe(res);
+         readStream.on("end", () => readStream.close());
+      }
    }
 }
 export default FileService;
