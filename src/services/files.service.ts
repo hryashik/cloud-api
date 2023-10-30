@@ -164,7 +164,13 @@ class FileService implements FileServiceInterface {
       const file = await this.fileRepository.findOneById(fileId);
       if (!file || file.userId !== userId) throw new CustomHttpError("Have no access to file", 403);
 
-      if (file.type === ".json" || file.type === ".txt") {
+      if (
+         file.type === ".json" ||
+         file.type === ".txt" ||
+         file.type === ".png" ||
+         file.type === ".gif" ||
+         file.type === ".jpg"
+      ) {
          const localFilePath = join(process.cwd(), "uploads", userId, file.path);
          const readStream = createReadStream(localFilePath);
          readStream.pipe(res);

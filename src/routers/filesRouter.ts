@@ -15,7 +15,7 @@ const upload = multer({
       fileSize: 50 * 1024 * 1024,
    },
    fileFilter(req, file, callback) {
-      if (decodeURI(file.originalname).length > 30) {
+      if (decodeURI(file.originalname).length > 40) {
          return callback(new CustomHttpError("File name must contain no more 30 symbols", 413));
       }
       callback(null, true);
